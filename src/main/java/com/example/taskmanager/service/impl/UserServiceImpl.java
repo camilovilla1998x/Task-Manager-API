@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import com.example.taskmanager.dto.user.UserRequest;
 import com.example.taskmanager.dto.user.UserResponse;
 import com.example.taskmanager.entity.User;
+import com.example.taskmanager.exception.EmailAlreadyExistsException;
+import com.example.taskmanager.exception.UserNotFoundException;
 import com.example.taskmanager.mapper.UserMapper;
 import com.example.taskmanager.repository.UserRepository;
 import com.example.taskmanager.service.UserService;
@@ -26,7 +28,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse create(UserRequest request) {
         
         if(userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already in use: " + request.getEmail());
+            throw new EmailAlreadyExistsException("Email already in use: " + request.getEmail());
         }
         User user = userMapper.toEntity(request);
         User savedUser = userRepository.save(user);
@@ -44,14 +46,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getById(Long id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
         return userMapper.toResponse(existingUser);
     }
 
     @Override
     public void deleteById(Long id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException(id));
         userRepository.delete(existingUser);
     }
 

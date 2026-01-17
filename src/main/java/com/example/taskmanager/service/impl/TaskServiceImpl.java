@@ -8,6 +8,8 @@ import com.example.taskmanager.dto.task.TaskRequest;
 import com.example.taskmanager.dto.task.TaskResponse;
 import com.example.taskmanager.entity.Task;
 import com.example.taskmanager.entity.User;
+import com.example.taskmanager.exception.TaskNotFoundException;
+import com.example.taskmanager.exception.UserNotFoundException;
 import com.example.taskmanager.mapper.TaskMapper;
 import com.example.taskmanager.repository.TaskRepository;
 import com.example.taskmanager.repository.UserRepository;
@@ -28,7 +30,7 @@ public class TaskServiceImpl implements TaskService {
         
         //Busco el usuario
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getUserId()));
+                .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
         
         //Mappeo TaskRequest -> Task
         Task task = taskMapper.toEntity(request);
@@ -55,7 +57,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponse getById(Long id) {
 
         Task existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found with id: " + id));
+                .orElseThrow(() -> new TaskNotFoundException(id));
         
         return taskMapper.toResponse(existingTask);
     }
@@ -64,7 +66,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponse update(Long id, TaskRequest request) {
         Task existingTask = taskRepository.findById(id)
             .orElseThrow(() ->
-                new RuntimeException("Task not found with id: " + id)
+                new TaskNotFoundException(id)
             );
 
     // Actualizar campos
@@ -76,7 +78,7 @@ public class TaskServiceImpl implements TaskService {
     if (!existingTask.getUser().getId().equals(request.getUserId())) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() ->
-                    new RuntimeException("User not found with id: " + request.getUserId())
+                    new UserNotFoundException(request.getUserId())
                 );
         existingTask.setUser(user);
     }
@@ -91,7 +93,7 @@ public class TaskServiceImpl implements TaskService {
 
         Task existingTask = taskRepository.findById(id)
             .orElseThrow(() ->
-                new RuntimeException("Task not found with id: " + id)
+                new TaskNotFoundException(id)
             );
 
         taskRepository.delete(existingTask);
