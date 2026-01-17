@@ -1,9 +1,9 @@
 package com.example.taskmanager.exception;
 
-public class TaskNotFoundException extends RuntimeException {
+public class TaskNotFoundException extends ResourceNotFoundException {
 
-    public TaskNotFoundException(String message) {
-        super(message);
+    public TaskNotFoundException(Long id) {
+        super("Task Not Found with id: " + id);
     }
 
 }

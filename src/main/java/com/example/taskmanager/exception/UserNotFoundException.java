@@ -1,9 +1,9 @@
 package com.example.taskmanager.exception;
 
-public class UserNotFoundException extends RuntimeException {
+public class UserNotFoundException extends ResourceNotFoundException {
 
-    public UserNotFoundException(String message) {
-        super(message);
+    public UserNotFoundException(Long id) {
+        super("User Not Found with id: " + id);
     }
 
 }
