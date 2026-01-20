@@ -11,7 +11,7 @@ spring:
     show-sql: true 
     properties:
       hibernate:
-        format_sql: true #Formatear SQL para mejor legibilidad
+        '[format_sql]': true #Formatear SQL para mejor legibilidad
 
   h2:
     console:
