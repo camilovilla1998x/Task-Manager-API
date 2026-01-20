@@ -83,7 +83,91 @@ public class UserControllerIT {
     }
 
     //* Inicio Validaciones 400 */
-    
+    //1. Nombre vacío
+
+    @Test
+    void shouldReturn400WhenNameIsBlank() throws Exception {
+
+        //Arrange
+        String jsonRequest  = """
+        {
+          "name": "",
+          "email": "camilo@test.com"
+        }
+        """;
+
+        mockMvc.perform(post("/api/users")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))
+        .andExpect(status().isBadRequest()) // 400
+        .andExpect(jsonPath("$.status").value(400)) // Verifica que el estado sea 400
+        .andExpect(jsonPath("$.errors").isArray()) // Verifica que errors sea un arreglo
+        .andExpect(jsonPath("$.errors[0].field").value("name")); // Verifica que el campo con error sea "name"
+
+    }
+
+    //2. Email inválido
+    @Test
+    void shouldReturn400WhenEmailIsInvalid() throws Exception {
+
+        String jsonRequest = """
+            {
+            "name": "Camilo",
+            "email": "correo-invalido"
+            }
+            """;
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errors").isArray())
+            .andExpect(jsonPath("$.errors[0].field").value("email"));
+    }
+
+    //3. Múltiples errores
+    @Test
+    void shouldReturn400WithMultipleValidationErrors() throws Exception {
+
+        String jsonRequest = """
+            {
+            "name": "",
+            "email": "invalid-email"
+            }
+            """;
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errors").isArray())
+            .andExpect(jsonPath("$.errors.length()").value(2));
+    }
+
+    //4. Validar la estructura completa del mensaje de error
+    @Test
+    void validationErrorResponseShouldHaveCorrectStructure() throws Exception {
+
+        String jsonRequest = """
+            {
+            "name": "",
+            "email": ""
+            }
+            """;
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequest))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.timestamp").exists())
+            .andExpect(jsonPath("$.status").value(400))
+            .andExpect(jsonPath("$.errors").isArray())
+            .andExpect(jsonPath("$.errors[0].field").exists())
+            .andExpect(jsonPath("$.errors[0].message").exists());
+    } //Útil para proteger la API ante refractors futuros 
+
+
+
 
 
     
