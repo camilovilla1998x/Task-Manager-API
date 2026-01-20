@@ -1,6 +1,7 @@
 package com.example.taskmanager.handler;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.taskmanager.dto.ApiErrorResponse;
+import com.example.taskmanager.dto.FieldErrorResponse;
+import com.example.taskmanager.dto.ValidationErrorResponse;
 import com.example.taskmanager.exception.EmailAlreadyExistsException;
 import com.example.taskmanager.exception.ResourceNotFoundException;
 
@@ -44,25 +47,25 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorResponse> handleValidationErrors(
+    public ResponseEntity<ValidationErrorResponse> handleValidationErrors( // Errores de múltiples inputs
             MethodArgumentNotValidException ex) {
     
-        String message = ex.getBindingResult()  // Obtiene los errores de validación
-                            .getFieldErrors() // Obtiene los errores específicos de los campos
-                            .stream() // Crea un stream para procesar los errores
-                            .map(err -> err.getField() + ": " + err.getDefaultMessage()) // Mapea cada error a un formato legible
-                            .toList() // Convierte el stream de vuelta a una lista
-                            .toString(); // Convierte la lista a un String
-    
-        ApiErrorResponse response = new ApiErrorResponse(
+        List<FieldErrorResponse> errores = ex.getBindingResult() // Obtiene la lista de errores de validación
+                                        .getFieldErrors()       // Convierte cada error en un FieldErrorResponse
+                                        .stream()               // Procesa la lista como un stream
+                                        .map(error ->           // Mapea cada error
+                                            new FieldErrorResponse(
+                                                error.getField(),   // Nombre del campo con error
+                                                error.getDefaultMessage()))  // Mensaje de error asociado
+                                        .toList();
+
+        ValidationErrorResponse response = new ValidationErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Validation Error",
-                message
+                errores
         );
-    
+
         return ResponseEntity.badRequest().body(response);
     }
     
-
 }

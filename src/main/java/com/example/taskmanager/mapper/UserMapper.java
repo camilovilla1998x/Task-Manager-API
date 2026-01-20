@@ -10,8 +10,9 @@ import com.example.taskmanager.entity.User;
 @Mapper(componentModel = "spring") //
 public interface UserMapper {
 
-    @Mapping(target = "email", ignore = true)
-    @Mapping(target = "name", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "tasks", ignore = true)
     User toEntity(UserRequest request);
 

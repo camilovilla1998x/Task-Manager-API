@@ -2,6 +2,9 @@ package controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.UUID;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.junit.jupiter.api.Test;
@@ -26,8 +29,7 @@ public class UserControllerIT {
 
     @Autowired
     private ObjectMapper objectMapper; //Para convertir objetos Java a JSON y viceversa
-
-
+    
     //Test -> Crear usuario
     @Test
     void shouldCreateUserSuccessfully() throws Exception {
@@ -35,7 +37,7 @@ public class UserControllerIT {
         //Arrange -> Preparar datos y estado inicial
         UserRequest request = new UserRequest();
         request.setName("Camilo");
-        request.setEmail("camilo@test.com");
+        request.setEmail("camilo_" + UUID.randomUUID() + "@test.com"); //Email único para evitar conflictos en pruebas
 
         String jsonRequest = objectMapper.writeValueAsString(request); //Convertir objeto a JSON -> {"name":"Camilo","email":"camilo@test.com"}
 
@@ -46,7 +48,7 @@ public class UserControllerIT {
             .andExpect(status().isCreated()) //Verificar que el estado HTTP sea 201 Created
             .andExpect(jsonPath("$.id").isNumber()) //Verificar que el campo id exista y sea un número
             .andExpect(jsonPath("$.name").value("Camilo")) //Verificar que el campo name sea "Camilo"
-            .andExpect(jsonPath("$.email").value("camilo@test.com")) //Verificar que el campo email sea "
+            .andExpect(jsonPath("$.email").value(request.getEmail())) //Verificar que el campo email sea el esperado "camilo_....@test.com"
             .andExpect(jsonPath("$.createdAt").exists()) //Verificar que el campo createdAt exista
             .andExpect(jsonPath("$.updatedAt").exists());//Verificar que el campo updatedAt exista
 
@@ -56,13 +58,15 @@ public class UserControllerIT {
     void shouldReturn409WhenEmailAlreadyExists() throws Exception {
 
         //Arrange -> Preparar datos y estado inicial
+        String email = "camilo_" + UUID.randomUUID() + "@test.com";
+
         String userJson = """
-            {
-            "name": "Camilo",
-            "email": "camilo@test.com"
-            }
-            """;
-        
+        {
+        "name": "Camilo",
+        "email": "%s"
+        }
+        """.formatted(email);
+                
         //Primera creación -> OK
         mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -71,13 +75,15 @@ public class UserControllerIT {
 
         // 2️⃣ Act + Assert
         mockMvc.perform(post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(userJson))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.status").value(409))
-                .andExpect(jsonPath("$.message")
-                        .value("Email already in use: camilo@test.com"));
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(userJson))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.status").value(409))
+        .andExpect(jsonPath("$.message").value("Email already in use: " + email));
     }
+
+    //* Inicio Validaciones 400 */
+    
 
 
     

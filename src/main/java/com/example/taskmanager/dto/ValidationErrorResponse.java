@@ -1,20 +1,20 @@
 package com.example.taskmanager.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor @AllArgsConstructor
+@AllArgsConstructor
 @Getter @Setter
-public class ApiErrorResponse {
+public class ValidationErrorResponse {
 
     private LocalDateTime timestamp;
     private int status;
-    private String error;
-    private String message;
-    
+    private List<FieldErrorResponse> errors;
+
 }
-//* Erores de negocio y dominio */
+
+//* Errores de validación */
