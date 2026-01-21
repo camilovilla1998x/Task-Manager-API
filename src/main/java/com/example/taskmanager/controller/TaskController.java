@@ -17,9 +17,14 @@ import com.example.taskmanager.dto.task.TaskRequest;
 import com.example.taskmanager.dto.task.TaskResponse;
 import com.example.taskmanager.service.TaskService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+@Tag(name = "Tasks", description = "Endpoints for task management")
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
@@ -27,6 +32,15 @@ public class TaskController {
 
     private final TaskService taskService;
 
+    @Operation(
+    summary = "Create a task",
+    description = "Creates a task and assigns it to an existing user"
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Task created successfully"),
+        @ApiResponse(responseCode = "400", description = "Validation error"),
+        @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @PostMapping
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody TaskRequest request) {
 
@@ -36,6 +50,9 @@ public class TaskController {
 
     }
 
+    @Operation(
+    summary = "Get all tasks"
+    )
     @GetMapping
     public ResponseEntity<List<TaskResponse>> getAllTasks() {
 
@@ -61,6 +78,12 @@ public class TaskController {
 
     }
 
+
+    @Operation(
+    summary = "Delete a task by ID"
+    )
+    @ApiResponse(responseCode = "204", description = "Task deleted")
+    @ApiResponse(responseCode = "404", description = "Task not found")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
 

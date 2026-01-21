@@ -10,8 +10,8 @@ import com.example.taskmanager.entity.Task;
 @Mapper(componentModel = "spring")
 public interface TaskMapper {
 
-    @Mapping(source = "user.id", target = "userId") //Viene del TaskResponse -> userId
-    @Mapping(source = "user.name", target = "userName") //Viene del TaskResponse -> userName
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.name", target = "userName")
     TaskResponse toResponse(Task task);
 
     @Mapping(target = "id", ignore = true)
@@ -19,5 +19,5 @@ public interface TaskMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Task toEntity(TaskRequest request);
-
 }
+
